@@ -1,0 +1,5 @@
+# Shell-Skripte und YAML immer mit LF, damit sie auch nach einem
+# Checkout unter Windows auf dem Board laufen.
+*.sh  text eol=lf
+*.yml text eol=lf
+*.md  text eol=lf

@@ -1,0 +1,16 @@
+# Home Assistant Container
+# Vorlage nach https://www.home-assistant.io/installation/linux (Abschnitt Docker Compose).
+# Pfad und Zeitzone kommen aus der .env-Datei, die install-ha-container.sh anlegt.
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ${HA_CONFIG_DIR:-./config}:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
