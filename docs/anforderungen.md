@@ -45,7 +45,8 @@ Genau das richtet `scripts/install-ha-container.sh` ein.
 | SK-AM62B (Starter Kit) | AM625, 4x Cortex-A53 | 64-bit | 2 GB | microSD | **ja (knapp)** |
 | SK-AM64B (Starter Kit) | AM6442, 2x Cortex-A53 1 GHz | 64-bit | 2 GB | microSD | **grenzwertig**: Mindestwerte erfüllt, wenig CPU-Leistung |
 | SK-TDA4VM | TDA4VM, 2x Cortex-A72 | 64-bit | 4 GB | microSD | **ja** |
-| LaunchPads (MSP430, MSP432, Tiva C, C2000, CC13xx/CC26xx) | Mikrocontroller | – | wenige KB | wenige KB–MB Flash | **nein**: kein Linux möglich |
+| **EK-TM4C123GXL** (Tiva C LaunchPad) | TM4C123GH6PM, 1x Cortex-M4F 80 MHz | 32-bit MCU | 32 KB SRAM | 256 KB Flash | **nein**: Mikrocontroller, kein Linux möglich |
+| Weitere LaunchPads (MSP430, MSP432, C2000, CC13xx/CC26xx) | Mikrocontroller | – | wenige KB | wenige KB–MB Flash | **nein**: kein Linux möglich |
 
 Hinweis zu LaunchPads: Ein **CC2652R- oder CC1352P-LaunchPad** kann Home
 Assistant nicht selbst ausführen, eignet sich aber mit Z-Stack-Coordinator-Firmware
@@ -56,7 +57,33 @@ Die Angaben oben sind die Nennwerte der Boards. Welches Board tatsächlich
 angeschlossen ist, und ob es die Anforderungen erfüllt, ermittelt
 `scripts/check-board.sh` direkt auf dem Board.
 
-## 3. Empfehlung, falls das Board nicht geeignet ist
+## 3. Ergebnis für das angeschlossene Board: EK-TM4C123GXL
+
+Das angeschlossene Board ist das **Tiva C Series TM4C123G LaunchPad
+(EK-TM4C123GXL)**. Es ist über die Debug-USB-Buchse angeschlossen
+(Schalter `PWR SELECT` auf `DEBUG`). Auf dem PC meldet es sich als
+*In-Circuit Debug Interface* (ICDI, USB-ID `1cbe:00fd`) mit einem virtuellen
+COM-Port ([TI][ti-ek]).
+
+| Kriterium | Anforderung | EK-TM4C123GXL | Erfüllt |
+|---|---|---|---|
+| CPU | 64-bit-Anwendungsprozessor (aarch64/x86_64) | ARM Cortex-M4F, 80 MHz, 32-bit-Mikrocontroller ohne MMU | nein |
+| Arbeitsspeicher | mind. 2 GB | 32 KB SRAM (ca. 65.000-mal zu wenig) | nein |
+| Speicher | mind. 32 GB | 256 KB Flash, 2 KB EEPROM | nein |
+| Betriebssystem | Linux mit Docker oder Home Assistant OS | kein Linux möglich (nur Bare-Metal oder RTOS) | nein |
+| Netzwerk | LAN oder WLAN | keines | nein |
+
+**Ergebnis: Die Anforderungen werden nicht erfüllt.** Home Assistant lässt sich
+auf diesem Board nicht installieren, auch nicht in abgespeckter Form.
+`check-board.sh` kann dort ebenfalls nicht laufen, da es kein Betriebssystem
+mit Shell gibt; der Abgleich beruht auf den Herstellerdaten.
+
+Sinnvoll nutzbar bleibt das LaunchPad als **Sensor- oder Aktor-Knoten** an
+einem Home-Assistant-Server: Eine eigene Firmware schickt Messwerte über den
+virtuellen COM-Port (UART0) per USB an den Server, der sie z. B. mit der
+Integration *Serial* einliest.
+
+## 4. Empfehlung, falls das Board nicht geeignet ist
 
 **Empfehlung: Home Assistant Green**, UVP **179 €** (199 USD) seit Januar 2026
 ([Nabu Casa][green-price]).
@@ -80,6 +107,7 @@ Wenn eines der als geeignet markierten TI-Boards bereits vorhanden ist (z. B.
 BeaglePlay oder BeagleY-AI), ist das die günstigste Lösung: Kosten nur für
 eine microSD-Karte >= 32 GB.
 
+[ti-ek]: https://www.ti.com/tool/EK-TM4C123GXL
 [install]: https://www.home-assistant.io/installation/
 [docker]: https://www.home-assistant.io/installation/docker/
 [deprecation]: https://www.home-assistant.io/blog/2025/05/22/deprecating-core-and-supervised-installation-methods-and-32-bit-systems/

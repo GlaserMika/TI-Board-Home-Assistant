@@ -48,8 +48,11 @@ port_open() {
 section "USB-Geraete"
 # ---------------------------------------------------------------------------
 # 0451 = Texas Instruments, 2047 = Texas Instruments (MSP430-Tools),
+# 1cbe:00fd = Stellaris/Tiva In-Circuit Debug Interface (ICDI), z. B. EK-TM4C123GXL,
 # 1d6b:0104 = USB-Gadget der BeagleBoard-Debian-Images
-usb_pattern='Texas Instruments|0451:|2047:|1d6b:0104|Beagle|XDS110|LaunchPad'
+usb_pattern='Texas Instruments|0451:|2047:|1cbe:|0x1cbe|Luminary|In-Circuit Debug|1d6b:0104|Beagle|XDS110|LaunchPad'
+# Debug-Schnittstellen von Mikrocontroller-LaunchPads (kein Linux auf dem Board)
+mcu_pattern='1cbe:|0x1cbe|Luminary|In-Circuit Debug|XDS110|0451:bef3|0xbef3|2047:|MSP'
 found_usb=""
 case "$(uname -s)" in
     Linux)
@@ -63,8 +66,12 @@ case "$(uname -s)" in
         found_usb=$(system_profiler SPUSBDataType 2>/dev/null | grep -Ei -B2 -A6 "$usb_pattern")
         ;;
 esac
+mcu_found=0
 if [ -n "$found_usb" ]; then
     echo "$found_usb" | sed 's/^/  /'
+    if echo "$found_usb" | grep -Eqi "$mcu_pattern"; then
+        mcu_found=1
+    fi
 else
     echo "  Kein TI-/Beagle-USB-Geraet gefunden"
 fi
@@ -96,6 +103,14 @@ for host in $candidates; do
         echo "  $host: nicht erreichbar"
     fi
 done
+
+if [ -z "$reachable" ] && [ "$mcu_found" -eq 1 ]; then
+    echo
+    echo "Mikrocontroller-LaunchPad per USB erkannt (Debug-Schnittstelle, z. B. ICDI des EK-TM4C123GXL)."
+    echo "Auf einem Mikrocontroller laeuft kein Linux, also auch kein Home Assistant."
+    echo "Abgleich und Alternativen: docs/anforderungen.md"
+    exit 1
+fi
 
 if [ -z "$reachable" ]; then
     echo

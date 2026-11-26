@@ -7,7 +7,8 @@ Home Assistant darauf einzurichten.
 
 | Datei | Läuft auf | Zweck |
 |---|---|---|
-| [`scripts/find-board.sh`](scripts/find-board.sh) | Rechner, an dem das Board hängt | Board über USB, serielle Schnittstelle und Netzwerk finden; Prüfung per SSH starten |
+| [`scripts/find-board.sh`](scripts/find-board.sh) | Rechner (Linux/macOS), an dem das Board hängt | Board über USB, serielle Schnittstelle und Netzwerk finden; Prüfung per SSH starten |
+| [`scripts/find-board.ps1`](scripts/find-board.ps1) | Rechner (Windows), an dem das Board hängt | USB-Verbindung, Treiberstatus und COM-Port des Boards prüfen |
 | [`scripts/check-board.sh`](scripts/check-board.sh) | Board | Spezifikationen auslesen und mit den Anforderungen abgleichen |
 | [`scripts/install-ha-container.sh`](scripts/install-ha-container.sh) | Board | Docker und Home Assistant Container Schritt für Schritt installieren |
 | [`homeassistant/docker-compose.yml`](homeassistant/docker-compose.yml) | Board | Compose-Definition des Home-Assistant-Containers |
@@ -55,7 +56,14 @@ Hängt das Board im LAN, die IP-Adresse angeben:
 scripts/find-board.sh --check --host 192.168.1.50 --user debian
 ```
 
-Unter Windows (PowerShell) das Skript aufs Board kopieren und dort ausführen:
+Unter Windows die USB-Verbindung in PowerShell im Repository-Ordner prüfen:
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts\find-board.ps1
+```
+
+Bei einem Linux-fähigen Board anschließend das Prüfskript aufs Board kopieren
+und dort ausführen:
 
 ```bash
 scp scripts/check-board.sh debian@192.168.7.2:
@@ -124,6 +132,8 @@ sudo ./scripts/install-ha-container.sh
 
 - [x] Prüf- und Installationsskripte erstellt (getestet: Syntax, Shellcheck,
       Prüflauf auf einem x86-64-Linux)
-- [ ] Verbindung zum Board herstellen
-- [ ] Spezifikationen des Boards prüfen
-- [ ] Home Assistant installieren oder Alternative wählen
+- [x] Board identifiziert: **EK-TM4C123GXL** (Tiva C LaunchPad, Mikrocontroller)
+- [x] Spezifikationen abgeglichen: **Anforderungen nicht erfüllt**, siehe
+      [`docs/anforderungen.md`](docs/anforderungen.md#3-ergebnis-für-das-angeschlossene-board-ek-tm4c123gxl)
+- [ ] USB-Verbindung auf dem PC bestätigen (`scripts\find-board.ps1` bzw. `scripts/find-board.sh`)
+- [ ] Hardware für Home Assistant beschaffen (Empfehlung: Home Assistant Green)
